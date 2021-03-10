@@ -36,6 +36,8 @@ namespace ControlProgram {
 	ID3D11RenderTargetView* mainRenderTargetView;
 	HMODULE hMod;
 
+	static map<void*, bool> MonstersState;
+
 	bool GameInit = false;
 	void InitImGui()
 	{
@@ -78,7 +80,10 @@ namespace ControlProgram {
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+		if(Base::Monster::Monsters.empty())
+			window_flags |= ImGuiWindowFlags_NoBackground;
 
 		if (!GameInit) {
 			ImGui::Begin(u8"½ø¶ÈÌõ", NULL, window_flags);
@@ -90,6 +95,12 @@ namespace ControlProgram {
 			ImGui::End();
 		}
 		else {
+			ImGui::SetNextWindowBgAlpha(0.10f);
+			ImGui::SetNextWindowPos(ImVec2(
+				ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x * 0.8f,
+				ImGui::GetMainViewport()->Pos.y + ImGui::GetMainViewport()->Size.y * 0.4f
+			), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+			//ImGui::SetNextWindowSize(ImVec2(350, 680), ImGuiCond_Always);
 			ImGui::Begin("Monster", NULL, window_flags);
 			vector<int> ExcludeMonster = {2,3,5,6,8,40,41,42,43,44,45,46,47,48,49,50,52,53,54,55,56,59,60,82,83,84,85,86};
 			for (auto [monster, monsterData] : Base::Monster::Monsters) {
@@ -105,46 +116,58 @@ namespace ControlProgram {
 						void* healthMgr = *offsetPtr<void*>(monster, 0x7670);
 						float health = *offsetPtr<float>(healthMgr, 0x64);
 						float maxHealth = *offsetPtr<float>(healthMgr, 0x60);
-
+						//³õÊ¼»¯×´Ì¬Ñ¡Ïî
+						if (MonstersState.count(monster) == 0)
+							MonstersState[monster] = false;
 						ImGui::Text(ICON_FA_DRAGON);
 						ImGui::SameLine();
 						ImGui::Text(Component::GetMonsterName(monsterData.Id).c_str());
+						ImGui::SameLine();
+						ostringstream ptr;
+						ptr << monsterData.Plot;
+						string ptrstr = ptr.str();
+						ImGui::Checkbox((u8"×´Ì¬  " + ptrstr).c_str(), &MonstersState[monster]);
 						ImGui::Separator();
 						char Health[32];
-						sprintf_s(Health, "%d/%d", (int)(health)/ (int)maxHealth);
+						sprintf_s(Health, "%d/%d", (int)health, (int)maxHealth);
+						ImGui::SetNextItemWidth(300);
 						ImGui::ProgressBar((health / maxHealth), ImVec2(0.0f, 0.0f), Health);
-						
-						static float  StateValue[8] = { 
-							(DeBuff["Dizziness"].StateValue / DeBuff["Dizziness"].MaxStateValue) * 10,
-							(DeBuff["Paralysis"].StateValue / DeBuff["Paralysis"].MaxStateValue) * 10,
-							(DeBuff["Sleep"].StateValue / DeBuff["Sleep"].MaxStateValue) * 10,
-							(DeBuff["Poisoning"].StateValue / DeBuff["Poisoning"].MaxStateValue) * 10,
-							(DeBuff["Flicker"].StateValue / DeBuff["Flicker"].MaxStateValue) * 10,
-							(DeBuff["FlickerG"].StateValue / DeBuff["FlickerG"].MaxStateValue) * 10,
-							(DeBuff["Traphole"].StateValue / DeBuff["Traphole"].MaxStateValue) * 10,
-							(DeBuff["Stasistrap"].StateValue / DeBuff["Stasistrap"].MaxStateValue) * 10
-						};
-						static float  RecoveryValue[8] = {
-							DeBuff["Dizziness"].MaxRecoveryValue - DeBuff["Dizziness"].RecoveryValue,
-							DeBuff["Paralysis"].MaxRecoveryValue - DeBuff["Paralysis"].RecoveryValue,
-							DeBuff["Sleep"].MaxRecoveryValue - DeBuff["Sleep"].RecoveryValue,
-							DeBuff["Poisoning"].MaxRecoveryValue - DeBuff["Poisoning"].RecoveryValue,
-							DeBuff["Flicker"].MaxRecoveryValue - DeBuff["Flicker"].RecoveryValue,
-							DeBuff["FlickerG"].MaxRecoveryValue - DeBuff["FlickerG"].RecoveryValue,
-							DeBuff["Traphole"].MaxRecoveryValue - DeBuff["Traphole"].RecoveryValue,
-							DeBuff["Stasistrap"].MaxRecoveryValue - DeBuff["Stasistrap"].RecoveryValue
-						};
-						static const char* labels[] = { u8"ÔÎ",u8"Âé",u8"Ë¯",u8"¶¾",u8"ÉÁ",u8"GÉÁ",u8"ÂäÑ¨",u8"ÂéÑ¨" };
-						static const double positions[] = { 0,1,2,3,4,5,6,7 };
-						ImPlot::SetNextPlotLimits(0, 15, -0.5, 9, ImGuiCond_Always);
-						ImPlot::SetNextPlotTicksY(positions, 8, labels);
-						if (ImPlot::BeginPlot(u8"×´Ì¬", "", "", ImVec2(-1, 0), 0, 0, ImPlotAxisFlags_Invert))
-						{
-							ImPlot::SetLegendLocation(ImPlotLocation_SouthWest, ImPlotOrientation_Horizontal);
-							ImPlot::PlotBarsH(u8"»ýÀÛÖµ", StateValue, 8, 0.2, -0.2);
-							ImPlot::PlotBarsH(u8"³ÖÐøÊ±¼ä", RecoveryValue, 8, 0.2, 0);
-							ImPlot::EndPlot();
+
+						if (MonstersState[monster]) {
+							float StateValue[8] = {
+							(DeBuff["Dizziness"].StateValue / DeBuff["Dizziness"].MaxStateValue) * 30,
+							(DeBuff["Paralysis"].StateValue / DeBuff["Paralysis"].MaxStateValue) * 30,
+							(DeBuff["Sleep"].StateValue / DeBuff["Sleep"].MaxStateValue) * 30,
+							(DeBuff["Poisoning"].StateValue / DeBuff["Poisoning"].MaxStateValue) * 30,
+							(DeBuff["Flicker"].StateValue / DeBuff["Flicker"].MaxStateValue) * 30,
+							(DeBuff["FlickerG"].StateValue / DeBuff["FlickerG"].MaxStateValue) * 30,
+							(DeBuff["Traphole"].StateValue / DeBuff["Traphole"].MaxStateValue) * 30,
+							(DeBuff["Stasistrap"].StateValue / DeBuff["Stasistrap"].MaxStateValue) * 30
+							};
+							float RecoveryValue[8] = {
+								DeBuff["Dizziness"].RecoveryValue <= 0 ? 0 : DeBuff["Dizziness"].MaxRecoveryValue - DeBuff["Dizziness"].RecoveryValue,
+								DeBuff["Paralysis"].RecoveryValue <= 0 ? 0 : DeBuff["Paralysis"].MaxRecoveryValue - DeBuff["Paralysis"].RecoveryValue,
+								DeBuff["Sleep"].RecoveryValue <= 0 ? 0 : DeBuff["Sleep"].MaxRecoveryValue - DeBuff["Sleep"].RecoveryValue,
+								DeBuff["Poisoning"].RecoveryValue <= 0 ? 0 : DeBuff["Poisoning"].MaxRecoveryValue - DeBuff["Poisoning"].RecoveryValue,
+								DeBuff["Flicker"].RecoveryValue <= 0 ? 0 : DeBuff["Flicker"].MaxRecoveryValue - DeBuff["Flicker"].RecoveryValue,
+								DeBuff["FlickerG"].RecoveryValue <= 0 ? 0 : DeBuff["FlickerG"].MaxRecoveryValue - DeBuff["FlickerG"].RecoveryValue,
+								DeBuff["Traphole"].RecoveryValue <= 0 ? 0 : DeBuff["Traphole"].MaxRecoveryValue - DeBuff["Traphole"].RecoveryValue,
+								DeBuff["Stasistrap"].RecoveryValue <= 0 ? 0 : DeBuff["Stasistrap"].MaxRecoveryValue - DeBuff["Stasistrap"].RecoveryValue
+							};
+							const char* labels[] = { u8"ÔÎ",u8"Âé",u8"Ë¯",u8"¶¾",u8"ÉÁ",u8"GÉÁ",u8"ÂäÑ¨",u8"ÂéÑ¨" };
+							const double positions[] = { 0,1,2,3,4,5,6,7 };
+							ImPlot::SetNextPlotLimits(0, 30, -0.5, 9, ImGuiCond_Always);
+							ImPlot::SetNextPlotTicksY(positions, 8, labels);
+							ImGui::SetNextItemWidth(100);
+							if (ImPlot::BeginPlot((Component::GetMonsterName(monsterData.Id) + u8"×´Ì¬").c_str(), "", "", ImVec2(-1, 0), 0, 0, ImPlotAxisFlags_Invert))
+							{
+								ImPlot::SetLegendLocation(ImPlotLocation_SouthWest, ImPlotOrientation_Horizontal);
+								ImPlot::PlotBarsH(u8"»ýÀÛÖµ", StateValue, 8, 0.2, -0.2);
+								ImPlot::PlotBarsH(u8"³ÖÐøÊ±¼ä", RecoveryValue, 8, 0.2, 0);
+								ImPlot::EndPlot();
+							}
 						}
+						
 					}
 					ImGui::Separator();
 			}

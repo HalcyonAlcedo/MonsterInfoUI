@@ -1,4 +1,4 @@
-// dllmain.cpp : Définit le point d'entrée de l'application DLL.
+﻿// dllmain.cpp : Définit le point d'entrée de l'application DLL.
 #include <fstream>
 #include <queue>
 #include <functional>

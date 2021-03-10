@@ -30,7 +30,7 @@ namespace Base {
 		string ModName = "MonsterInfoUI";
 		string ModAuthor = "Alcedo";
 		string ModVersion = "v1.0.0";
-		long long ModBuild = 100002103092311;
+		long long ModBuild = 100002103102325;
 		string Version = "421470";
 	}
 #pragma endregion

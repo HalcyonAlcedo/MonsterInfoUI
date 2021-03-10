@@ -199,8 +199,12 @@
     <ClInclude Include="PlayerBuff.h" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="imgui\fa-regular-400.ttf" />
-    <Font Include="imgui\fa-solid-900.ttf" />
+    <Font Include="imgui\fa-regular-400.ttf">
+      <DeploymentContent>false</DeploymentContent>
+    </Font>
+    <Font Include="imgui\fa-solid-900.ttf">
+      <DeploymentContent>false</DeploymentContent>
+    </Font>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
