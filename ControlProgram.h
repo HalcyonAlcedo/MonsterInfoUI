@@ -86,7 +86,7 @@ namespace ControlProgram {
 			window_flags |= ImGuiWindowFlags_NoBackground;
 
 		if (!GameInit) {
-			ImGui::Begin(u8"进度条", NULL, window_flags);
+			ImGui::Begin(u8"初始化", NULL, window_flags);
 			static float progress = 0.0f, progress_dir = 1.0f;
 			progress += progress_dir * 0.4f * ImGui::GetIO().DeltaTime;
 			if (progress >= +1.1f) { GameInit = true; }
@@ -95,6 +95,7 @@ namespace ControlProgram {
 			ImGui::End();
 		}
 		else {
+#pragma region Monster
 			ImGui::SetNextWindowBgAlpha(0.10f);
 			ImGui::SetNextWindowPos(ImVec2(
 				ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x * 0.8f,
@@ -109,7 +110,7 @@ namespace ControlProgram {
 							continue;
 						//初始化Buff信息
 						map<string, MonsterBuff::MonsterBuffState> DeBuff;
-						for (string debuff : vector<string>{ "Dizziness","Paralysis","Sleep","Poisoning","Flicker","FlickerG","Traphole","Stasistrap"}) {
+						for (string debuff : vector<string>{ "Ridedowna","Dizziness","Paralysis","Sleep","Poisoning","Flicker","FlickerG","Traphole","Stasistrap"}) {
 							DeBuff[debuff] = MonsterBuff::GetMonsterBuffState(monster, debuff);
 						}
 						//初始化生命信息
@@ -134,7 +135,8 @@ namespace ControlProgram {
 						ImGui::ProgressBar((health / maxHealth), ImVec2(0.0f, 0.0f), Health);
 
 						if (MonstersState[monster]) {
-							float StateValue[8] = {
+							float StateValue[] = {
+							(DeBuff["Ridedowna"].StateValue / DeBuff["Ridedowna"].MaxStateValue) * 30,
 							(DeBuff["Dizziness"].StateValue / DeBuff["Dizziness"].MaxStateValue) * 30,
 							(DeBuff["Paralysis"].StateValue / DeBuff["Paralysis"].MaxStateValue) * 30,
 							(DeBuff["Sleep"].StateValue / DeBuff["Sleep"].MaxStateValue) * 30,
@@ -144,7 +146,8 @@ namespace ControlProgram {
 							(DeBuff["Traphole"].StateValue / DeBuff["Traphole"].MaxStateValue) * 30,
 							(DeBuff["Stasistrap"].StateValue / DeBuff["Stasistrap"].MaxStateValue) * 30
 							};
-							float RecoveryValue[8] = {
+							float RecoveryValue[] = {
+								DeBuff["Ridedowna"].RecoveryValue <= 0 ? 0 : DeBuff["Ridedowna"].MaxRecoveryValue - DeBuff["Ridedowna"].RecoveryValue,
 								DeBuff["Dizziness"].RecoveryValue <= 0 ? 0 : DeBuff["Dizziness"].MaxRecoveryValue - DeBuff["Dizziness"].RecoveryValue,
 								DeBuff["Paralysis"].RecoveryValue <= 0 ? 0 : DeBuff["Paralysis"].MaxRecoveryValue - DeBuff["Paralysis"].RecoveryValue,
 								DeBuff["Sleep"].RecoveryValue <= 0 ? 0 : DeBuff["Sleep"].MaxRecoveryValue - DeBuff["Sleep"].RecoveryValue,
@@ -154,24 +157,25 @@ namespace ControlProgram {
 								DeBuff["Traphole"].RecoveryValue <= 0 ? 0 : DeBuff["Traphole"].MaxRecoveryValue - DeBuff["Traphole"].RecoveryValue,
 								DeBuff["Stasistrap"].RecoveryValue <= 0 ? 0 : DeBuff["Stasistrap"].MaxRecoveryValue - DeBuff["Stasistrap"].RecoveryValue
 							};
-							const char* labels[] = { u8"晕",u8"麻",u8"睡",u8"毒",u8"闪",u8"G闪",u8"落穴",u8"麻穴" };
-							const double positions[] = { 0,1,2,3,4,5,6,7 };
-							ImPlot::SetNextPlotLimits(0, 30, -0.5, 9, ImGuiCond_Always);
-							ImPlot::SetNextPlotTicksY(positions, 8, labels);
+							const char* labels[] = { u8"倒",u8"晕",u8"麻",u8"睡",u8"毒",u8"闪",u8"G闪",u8"落穴",u8"麻穴" };
+							const double positions[] = { 0,1,2,3,4,5,6,7,8 };
+							ImPlot::SetNextPlotLimits(0, 30, -0.5, 10, ImGuiCond_Always);
+							ImPlot::SetNextPlotTicksY(positions, 9, labels);
 							ImGui::SetNextItemWidth(100);
 							if (ImPlot::BeginPlot((Component::GetMonsterName(monsterData.Id) + u8"状态").c_str(), "", "", ImVec2(-1, 0), 0, 0, ImPlotAxisFlags_Invert))
 							{
 								ImPlot::SetLegendLocation(ImPlotLocation_SouthWest, ImPlotOrientation_Horizontal);
-								ImPlot::PlotBarsH(u8"积累值", StateValue, 8, 0.2, -0.2);
-								ImPlot::PlotBarsH(u8"持续时间", RecoveryValue, 8, 0.2, 0);
+								ImPlot::PlotBarsH(u8"积累值", StateValue, 9, 0.2, -0.2);
+								ImPlot::PlotBarsH(u8"持续时间", RecoveryValue, 9, 0.2, 0);
 								ImPlot::EndPlot();
 							}
 						}
-						
 					}
 					ImGui::Separator();
 			}
 			ImGui::End();
+#pragma endregion
+
 		}
 		ImGui::Render();
 		pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
