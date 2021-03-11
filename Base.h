@@ -29,8 +29,8 @@ namespace Base {
 		//可设置参数
 		string ModName = "MonsterInfoUI";
 		string ModAuthor = "Alcedo";
-		string ModVersion = "v1.0.0";
-		long long ModBuild = 100002103102325;
+		string ModVersion = "v1.0.1";
+		long long ModBuild = 100002103111806;
 		string Version = "421470";
 	}
 #pragma endregion
@@ -39,6 +39,7 @@ namespace Base {
 	//游戏基址数据
 	namespace BasicGameData {
 		void* PlayerPlot = nullptr;
+		void* PlayerDataPlot = nullptr;
 		void* MapPlot = nullptr;
 	}
 #pragma endregion
@@ -139,6 +140,8 @@ namespace Base {
 		float CurrentEndurance = 0;
 		//耐力上限（25-150）
 		float MaxEndurance = 0;
+		//最后一次击中的怪物地址
+		void* AttackMonsterPlot = nullptr;
 		//获取玩家Buff持续时间
 		static float GetPlayerBuff(string buff) {
 			void* BuffsPlot = *offsetPtr<void*>(BasicGameData::PlayerPlot, 0x7D20);
@@ -167,6 +170,9 @@ namespace Base {
 				CurrentEndurance = 0;
 				MaxEndurance = 0;
 			}
+			if (BasicGameData::PlayerDataPlot != nullptr) {
+				AttackMonsterPlot = *offsetPtr<undefined**>((undefined(*)())BasicGameData::PlayerDataPlot, 0x4298);
+			}
 		}
 	}
 #pragma endregion
@@ -180,6 +186,15 @@ namespace Base {
 			void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 			BasicGameData::PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
 			BasicGameData::MapPlot = *offsetPtr<undefined**>((undefined(*)())BasicGameData::PlayerPlot, 0x7D20);
+			void* PlayerDataOffset1 = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+			void* PlayerDataOffset2 = nullptr;
+			if (PlayerDataOffset1 != nullptr)
+				PlayerDataOffset2 = *offsetPtr<undefined**>((undefined(*)())PlayerDataOffset1, 0x4c0);
+			void* PlayerDataOffset3 = nullptr;
+			if (PlayerDataOffset2 != nullptr)
+				PlayerDataOffset3 = *offsetPtr<undefined**>((undefined(*)())PlayerDataOffset2, 0x98);
+			if (PlayerDataOffset3 != nullptr)
+				BasicGameData::PlayerDataPlot = *offsetPtr<undefined**>((undefined(*)())PlayerDataOffset3, 0x48);
 			Draw::GameInitInfo += u8"\n 载入汇编数据";
 			if (
 				BasicGameData::PlayerPlot != nullptr and
@@ -218,6 +233,8 @@ namespace Base {
 					LOG(ERR) << "The following address failed to complete the initialization. We will try again later. If the address is still not initialized successfully, please contact the mod author for solution.";
 					if (BasicGameData::PlayerPlot == nullptr)
 						LOG(ERR) << " |  PlayerPlot";
+					if (BasicGameData::PlayerDataPlot == nullptr)
+						LOG(ERR) << " |  PlayerDataPlot";
 					if (BasicGameData::MapPlot == nullptr)
 						LOG(ERR) << " |  MapPlot";
 					ModConfig::InitErrCount++;

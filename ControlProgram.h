@@ -103,7 +103,7 @@ namespace ControlProgram {
 			), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 			//ImGui::SetNextWindowSize(ImVec2(350, 680), ImGuiCond_Always);
 			ImGui::Begin("Monster", NULL, window_flags);
-			vector<int> ExcludeMonster = {2,3,5,6,8,40,41,42,43,44,45,46,47,48,49,50,52,53,54,55,56,59,60,82,83,84,85,86};
+			vector<int> ExcludeMonster = {2,3,5,6,8,40,41,42,43,44,45,46,47,48,49,50,52,53,54,55,56,57,58,59,60,82,83,84,85,86,98};
 			for (auto [monster, monsterData] : Base::Monster::Monsters) {
 					if (monster != nullptr) {
 						if (std::find(ExcludeMonster.begin(), ExcludeMonster.end(), monsterData.Id) != ExcludeMonster.end())
@@ -134,7 +134,7 @@ namespace ControlProgram {
 						ImGui::SetNextItemWidth(300);
 						ImGui::ProgressBar((health / maxHealth), ImVec2(0.0f, 0.0f), Health);
 
-						if (MonstersState[monster]) {
+						if (MonstersState[monster] or Base::PlayerData::AttackMonsterPlot == monster) {
 							float StateValue[] = {
 							(DeBuff["Ridedowna"].StateValue / DeBuff["Ridedowna"].MaxStateValue) * 30,
 							(DeBuff["Dizziness"].StateValue / DeBuff["Dizziness"].MaxStateValue) * 30,
