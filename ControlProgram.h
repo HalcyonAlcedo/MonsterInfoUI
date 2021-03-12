@@ -93,6 +93,19 @@ namespace ControlProgram {
 			ImGui::ProgressBar(progress, ImVec2(0.0f, 0.0f), "");
 			ImGui::Text(Base::Draw::GameInitInfo.c_str());
 			ImGui::End();
+
+			window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+			ImGui::SetNextWindowBgAlpha(0.10f);
+			ImGui::SetNextWindowPos(ImVec2(
+				ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x * 0.8f,
+				ImGui::GetMainViewport()->Pos.y + ImGui::GetMainViewport()->Size.y * 0.8f
+			), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+			
+			ImGui::Begin("LOGO", NULL, window_flags);
+			ImGui::SetWindowFontScale(3);
+			ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 0.2f), u8"Caimogu.net|ooomu");
+			ImGui::SameLine();
+			ImGui::End();
 		}
 		else {
 #pragma region Monster
