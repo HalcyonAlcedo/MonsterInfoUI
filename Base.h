@@ -2,6 +2,7 @@
 #include <map>
 #include "MonsterBuff.h"
 #include "PlayerBuff.h"
+#include "Component.h"
 
 using namespace std;
 using namespace loader;
@@ -86,9 +87,7 @@ namespace Base {
 	//图形绘制
 #pragma region Draw
 	namespace Draw {
-#pragma region imgui
-		string GameInitInfo = u8"信息显示系统初始化";
-#pragma endregion
+		bool GameInit = false;
 	}
 #pragma endregion
 	//怪物信息
@@ -182,7 +181,6 @@ namespace Base {
 			return true;
 		else
 		{
-			Draw::GameInitInfo += u8"\n 初始化数据指针";
 			void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 			BasicGameData::PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
 			BasicGameData::MapPlot = *offsetPtr<undefined**>((undefined(*)())BasicGameData::PlayerPlot, 0x7D20);
@@ -195,7 +193,6 @@ namespace Base {
 				PlayerDataOffset3 = *offsetPtr<undefined**>((undefined(*)())PlayerDataOffset2, 0x98);
 			if (PlayerDataOffset3 != nullptr)
 				BasicGameData::PlayerDataPlot = *offsetPtr<undefined**>((undefined(*)())PlayerDataOffset3, 0x48);
-			Draw::GameInitInfo += u8"\n 载入汇编数据";
 			if (
 				BasicGameData::PlayerPlot != nullptr and
 				BasicGameData::MapPlot != nullptr
@@ -216,15 +213,12 @@ namespace Base {
 						Base::Monster::Monsters.erase(monster);
 						return original(monster);
 					});
-				Draw::GameInitInfo += u8"\n 怪物模块加载";
 				MH_ApplyQueued();
 				ModConfig::GameDataInit = true;
 				LOG(INFO) << ModConfig::ModName << " : Game data initialization complete!";
 				LOG(INFO) << " |  Mod：" << ModConfig::ModName;
 				LOG(INFO) << " |  Author：" << ModConfig::ModAuthor;
 				LOG(INFO) << " |  Version：" << ModConfig::ModVersion;
-				Draw::GameInitInfo += u8"\n 系统初始化完成";
-				//Draw::GameInit = true;
 				return true;
 			}
 			else {

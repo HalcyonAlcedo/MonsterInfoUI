@@ -161,10 +161,12 @@
   <ItemGroup>
     <ClCompile Include="deps\kiero.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="dxhook\globals.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="imgui\imgui_impl_dx12.cpp" />
     <ClCompile Include="imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
@@ -182,10 +184,13 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="ControlProgram.h" />
     <ClInclude Include="deps\kiero.h" />
+    <ClInclude Include="dxhook\globals.h" />
+    <ClInclude Include="dxhook\inputhooks.h" />
     <ClInclude Include="imgui\IconsFontAwesome5.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="imgui\imgui_impl_dx12.h" />
     <ClInclude Include="imgui\imgui_impl_win32.h" />
     <ClInclude Include="imgui\imgui_internal.h" />
     <ClInclude Include="imgui\imstb_rectpack.h" />

@@ -16,10 +16,17 @@
 #include "util.h"
 #include <thread>
 
+#include "dxhook/globals.h"
 #include "Base.h"
 #include "ControlProgram.h"
-using namespace loader;
 
+using namespace loader;
+//初始化Dx钩子
+unsigned long __stdcall MainThread()
+{
+	ControlProgram::Init();
+	return 0;
+}
 __declspec(dllexport) extern bool Load()
 {
 	//游戏版本检查
@@ -27,14 +34,21 @@ __declspec(dllexport) extern bool Load()
 		LOG(WARN) << Base::ModConfig::ModName << " : Wrong version";
 		return false;
 	}
+
 	//初始化钩子
 	MH_Initialize();
 	HookLambda(MH::World::MapClockLocal,
 		[](auto clock, auto clock2) {
 			auto ret = original(clock, clock2);
-			ControlProgram::InitConsole();
+			//初始化系统数据
 			if (Base::Init()) {
 				Base::RealTimeUpdate();
+			}
+			//初始化图形
+			if (!Base::Draw::GameInit) {
+				Base::Draw::GameInit = true;
+				globals::mainWindow = (HWND)FindWindow("MT FRAMEWORK", NULL);
+				CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MainThread, globals::mainModule, 0, 0);
 			}
 			return ret;
 		});
@@ -49,8 +63,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 )
 {
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-		DisableThreadLibraryCalls(hModule);
-		ControlProgram::hMod = hModule;
+		globals::mainModule = hModule;
 		return Load();
 	}
 	return TRUE;
