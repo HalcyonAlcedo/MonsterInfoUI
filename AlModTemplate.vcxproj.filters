@@ -27,6 +27,9 @@
     <Filter Include="imguiHook\kiero">
       <UniqueIdentifier>{617dda18-9372-4fdf-bd7a-e9681521a7f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="View">
+      <UniqueIdentifier>{53839505-2b67-4428-a6f7-df9e0a874e9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -96,7 +99,7 @@
     <ClInclude Include="PlayerBuff.h">
       <Filter>核心数据</Filter>
     </ClInclude>
-    <ClInclude Include="ControlProgram.h">
+    <ClInclude Include="Display.h">
       <Filter>核心数据</Filter>
     </ClInclude>
     <ClInclude Include="impl\d3d11_impl.h">
@@ -149,6 +152,9 @@
     </ClInclude>
     <ClInclude Include="dxhook\inputhooks.h">
       <Filter>imguiHook\kiero</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>View</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

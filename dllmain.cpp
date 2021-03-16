@@ -18,13 +18,13 @@
 
 #include "dxhook/globals.h"
 #include "Base.h"
-#include "ControlProgram.h"
+#include "Display.h"
 
 using namespace loader;
 //初始化Dx钩子
 unsigned long __stdcall MainThread()
 {
-	ControlProgram::Init();
+	Display::Init();
 	return 0;
 }
 __declspec(dllexport) extern bool Load()

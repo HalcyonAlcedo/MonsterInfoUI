@@ -182,7 +182,7 @@
   <ItemGroup>
     <ClInclude Include="Base.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="ControlProgram.h" />
+    <ClInclude Include="Display.h" />
     <ClInclude Include="deps\kiero.h" />
     <ClInclude Include="dxhook\globals.h" />
     <ClInclude Include="dxhook\inputhooks.h" />
@@ -200,6 +200,7 @@
     <ClInclude Include="implot\implot_internal.h" />
     <ClInclude Include="impl\d3d11_impl.h" />
     <ClInclude Include="impl\shared.h" />
+    <ClInclude Include="Monster.h" />
     <ClInclude Include="MonsterBuff.h" />
     <ClInclude Include="PlayerBuff.h" />
   </ItemGroup>
