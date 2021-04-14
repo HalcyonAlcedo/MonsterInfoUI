@@ -171,7 +171,7 @@ namespace Base {
 				MaxEndurance = 0;
 			}
 			if (BasicGameData::PlayerDataPlot != nullptr) {
-				AttackMonsterPlot = *offsetPtr<undefined**>((undefined(*)())BasicGameData::PlayerDataPlot, 0x4298);
+				AttackMonsterPlot = *offsetPtr<undefined**>((undefined(*)())BasicGameData::PlayerDataPlot, 0x2C8);
 			}
 		}
 	}
@@ -187,14 +187,24 @@ namespace Base {
 			BasicGameData::PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
 			BasicGameData::MapPlot = *offsetPtr<undefined**>((undefined(*)())BasicGameData::PlayerPlot, 0x7D20);
 			void* PlayerDataOffset1 = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
-			void* PlayerDataOffset2 = nullptr;
-			if (PlayerDataOffset1 != nullptr)
-				PlayerDataOffset2 = *offsetPtr<undefined**>((undefined(*)())PlayerDataOffset1, 0x4c0);
-			void* PlayerDataOffset3 = nullptr;
-			if (PlayerDataOffset2 != nullptr)
-				PlayerDataOffset3 = *offsetPtr<undefined**>((undefined(*)())PlayerDataOffset2, 0x98);
-			if (PlayerDataOffset3 != nullptr)
-				BasicGameData::PlayerDataPlot = *offsetPtr<undefined**>((undefined(*)())PlayerDataOffset3, 0x48);
+			void* PlayerDataHandlePlot = *(undefined**)MH::Player::PlayerDataHandlePlot;
+			void* PlayerDataHandleOffset1 = nullptr;
+			if (PlayerDataHandlePlot != nullptr)
+				PlayerDataHandleOffset1 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandlePlot, 0x48);
+			void* PlayerDataHandleOffset2 = nullptr;
+			if (PlayerDataHandleOffset1 != nullptr)
+				PlayerDataHandleOffset2 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset1, 0x58);
+			void* PlayerDataHandleOffset3 = nullptr;
+			if (PlayerDataHandleOffset2 != nullptr)
+				PlayerDataHandleOffset3 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset2, 0x58);
+			void* PlayerDataHandleOffset4 = nullptr;
+			if (PlayerDataHandleOffset3 != nullptr)
+				PlayerDataHandleOffset4 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset3, 0x40);
+			void* PlayerDataHandleOffset5 = nullptr;
+			if (PlayerDataHandleOffset4 != nullptr)
+				PlayerDataHandleOffset5 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset4, 0xD0);
+			if (PlayerDataHandleOffset5 != nullptr)
+				BasicGameData::PlayerDataPlot = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset5, 0x8);
 			Draw::GameInitInfo += u8"\n ‘ÿ»Îª„±‡ ˝æ›";
 			if (
 				BasicGameData::PlayerPlot != nullptr and
