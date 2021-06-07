@@ -29,6 +29,7 @@ namespace ControlProgram {
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	Present oPresent;
+	Present oResize;
 	HWND window = NULL;
 	WNDPROC oWndProc;
 	ID3D11Device* pDevice = NULL;
@@ -53,7 +54,14 @@ namespace ControlProgram {
 		ImGui_ImplWin32_Init(window);
 		ImGui_ImplDX11_Init(pDevice, pContext);
 	}
-
+	HRESULT __stdcall hkResize(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+	{
+		mainRenderTargetView->Release();
+		mainRenderTargetView = nullptr;
+		Base::ModConfig::DrawInit = false;
+		Base::ModConfig::GameDataInit = false;
+		return oResize(pSwapChain, SyncInterval, Flags);
+	}
 	HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 	{
 		if (!init)
@@ -77,6 +85,15 @@ namespace ControlProgram {
 				return oPresent(pSwapChain, SyncInterval, Flags);
 		}
 
+		if (!Base::ModConfig::DrawInit)
+			return oPresent(pSwapChain, SyncInterval, Flags);
+		else if (mainRenderTargetView == nullptr) {
+			ID3D11Texture2D* pBackBuffer;
+			pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+			pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
+			pBackBuffer->Release();
+		}
+
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
@@ -85,29 +102,7 @@ namespace ControlProgram {
 		if(Base::Monster::Monsters.empty())
 			window_flags |= ImGuiWindowFlags_NoBackground;
 
-		if (!GameInit) {
-			ImGui::Begin(u8"³õÊ¼»¯", NULL, window_flags);
-			static float progress = 0.0f, progress_dir = 1.0f;
-			progress += progress_dir * 0.4f * ImGui::GetIO().DeltaTime;
-			if (progress >= +1.1f) { GameInit = true; }
-			ImGui::ProgressBar(progress, ImVec2(0.0f, 0.0f), "");
-			ImGui::Text(Base::Draw::GameInitInfo.c_str());
-			ImGui::End();
-
-			window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-			ImGui::SetNextWindowBgAlpha(0.10f);
-			ImGui::SetNextWindowPos(ImVec2(
-				ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x * 0.8f,
-				ImGui::GetMainViewport()->Pos.y + ImGui::GetMainViewport()->Size.y * 0.8f
-			), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			
-			ImGui::Begin("LOGO", NULL, window_flags);
-			ImGui::SetWindowFontScale(3);
-			ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 0.2f), u8"Caimogu.net|ooomu");
-			ImGui::SameLine();
-			ImGui::End();
-		}
-		else {
+		if (GameInit) {
 #pragma region Monster
 			ImGui::SetNextWindowBgAlpha(0.10f);
 			ImGui::SetNextWindowPos(ImVec2(
@@ -204,6 +199,7 @@ namespace ControlProgram {
 			if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
 			{
 				kiero::bind(8, (void**)&oPresent, hkPresent);
+				kiero::bind(13, (void**)&oResize, hkResize);
 				init_hook = true;
 			}
 		} while (!init_hook);

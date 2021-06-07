@@ -22,6 +22,7 @@ namespace Base {
 	namespace ModConfig {
 		//内置参数
 		bool GameDataInit = false;
+		bool DrawInit = false;
 		bool InitErrInfo = true;
 		int InitErrCount = 0;
 		vector<string> LuaFiles;
@@ -29,9 +30,9 @@ namespace Base {
 		//可设置参数
 		string ModName = "MonsterInfoUI";
 		string ModAuthor = "Alcedo";
-		string ModVersion = "v1.0.1";
-		long long ModBuild = 100002103111806;
-		string Version = "421470";
+		string ModVersion = "v1.0.2";
+		long long ModBuild = 100022106071341;
+		string Version = "421471";
 	}
 #pragma endregion
 	//游戏基础地址
@@ -81,14 +82,6 @@ namespace Base {
 			RangeDistance = sqrt((RangeDistance * RangeDistance) + sqrt((point1.y - point2.y) * (point1.y - point2.y)));
 			return RangeDistance;
 		}
-	}
-#pragma endregion
-	//图形绘制
-#pragma region Draw
-	namespace Draw {
-#pragma region imgui
-		string GameInitInfo = u8"信息显示系统初始化";
-#pragma endregion
 	}
 #pragma endregion
 	//怪物信息
@@ -173,6 +166,26 @@ namespace Base {
 			if (BasicGameData::PlayerDataPlot != nullptr) {
 				AttackMonsterPlot = *offsetPtr<undefined**>((undefined(*)())BasicGameData::PlayerDataPlot, 0x2C8);
 			}
+			else {
+				void* PlayerDataHandlePlot = *(undefined**)MH::Player::PlayerDataHandlePlot;
+				void* PlayerDataHandleOffset1 = nullptr;
+				if (PlayerDataHandlePlot != nullptr)
+					PlayerDataHandleOffset1 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandlePlot, 0x48);
+				void* PlayerDataHandleOffset2 = nullptr;
+				if (PlayerDataHandleOffset1 != nullptr)
+					PlayerDataHandleOffset2 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset1, 0x58);
+				void* PlayerDataHandleOffset3 = nullptr;
+				if (PlayerDataHandleOffset2 != nullptr)
+					PlayerDataHandleOffset3 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset2, 0x58);
+				void* PlayerDataHandleOffset4 = nullptr;
+				if (PlayerDataHandleOffset3 != nullptr)
+					PlayerDataHandleOffset4 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset3, 0x40);
+				void* PlayerDataHandleOffset5 = nullptr;
+				if (PlayerDataHandleOffset4 != nullptr)
+					PlayerDataHandleOffset5 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset4, 0xD0);
+				if (PlayerDataHandleOffset5 != nullptr)
+					BasicGameData::PlayerDataPlot = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset5, 0x8);
+			}
 		}
 	}
 #pragma endregion
@@ -182,7 +195,6 @@ namespace Base {
 			return true;
 		else
 		{
-			Draw::GameInitInfo += u8"\n 初始化数据指针";
 			void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 			BasicGameData::PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
 			BasicGameData::MapPlot = *offsetPtr<undefined**>((undefined(*)())BasicGameData::PlayerPlot, 0x7D20);
@@ -205,7 +217,6 @@ namespace Base {
 				PlayerDataHandleOffset5 = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset4, 0xD0);
 			if (PlayerDataHandleOffset5 != nullptr)
 				BasicGameData::PlayerDataPlot = *offsetPtr<undefined**>((undefined(*)())PlayerDataHandleOffset5, 0x8);
-			Draw::GameInitInfo += u8"\n 载入汇编数据";
 			if (
 				BasicGameData::PlayerPlot != nullptr and
 				BasicGameData::MapPlot != nullptr
@@ -226,15 +237,12 @@ namespace Base {
 						Base::Monster::Monsters.erase(monster);
 						return original(monster);
 					});
-				Draw::GameInitInfo += u8"\n 怪物模块加载";
 				MH_ApplyQueued();
 				ModConfig::GameDataInit = true;
 				LOG(INFO) << ModConfig::ModName << " : Game data initialization complete!";
 				LOG(INFO) << " |  Mod：" << ModConfig::ModName;
 				LOG(INFO) << " |  Author：" << ModConfig::ModAuthor;
 				LOG(INFO) << " |  Version：" << ModConfig::ModVersion;
-				Draw::GameInitInfo += u8"\n 系统初始化完成";
-				//Draw::GameInit = true;
 				return true;
 			}
 			else {
